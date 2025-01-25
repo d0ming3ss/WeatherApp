@@ -16,11 +16,13 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _cityController = TextEditingController();
   Weather? _weather;
   String _currentCity = "Wrocław";
+  bool _isNightMode = false;
 
   @override
   void initState() {
     super.initState();
     _fetchWeather();
+    _checkNightMode();
   }
 
   void _fetchWeather() {
@@ -35,61 +37,73 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _checkNightMode() {
+    DateTime now = DateTime.now();
+    setState(() {
+      _isNightMode = now.hour >= 19 || now.hour < 6;
+    });
+  }
+
   String _getLottieAsset(String? weatherMain) {
-    if (weatherMain == null) {
-      return 'assets/sunny_cloud.json';
-    }
-    switch (weatherMain.toLowerCase()) {
-      case 'clouds':
-        return 'assets/cloud.json';
-      case 'clear':
-        return 'assets/sunny.json';
-      case 'light rain':
-      case 'rain':
-      case 'shower rain':
-      case 'drizzle':
-        return 'assets/sunny_rain.json';
-      case 'thunderstorm':
-        return 'assets/thunder.json';
-      case 'snow':
-        return 'assets/snow.json';
-      case 'mist':
-      case 'fog':
-      case 'haze':
-      case 'dust':
-      case 'smoke':
-        return 'assets/mist_wind.json';
-      default:
-        return 'assets/sunny_cloud.json';
+    if (_isNightMode) {
+      switch (weatherMain?.toLowerCase()) {
+        case 'clear':
+          return 'assets/night.json';
+        case 'clouds':
+        case 'cloudy':
+          return 'assets/night_cloud.json';
+        case 'rain':
+        case 'light rain':
+        case 'shower rain':
+        case 'drizzle':
+          return 'assets/night_rain.json';
+        case 'snow':
+          return 'assets/night_snow.json';
+        default:
+          return 'assets/night_cloud.json';
+      }
+    } else {
+      switch (weatherMain?.toLowerCase()) {
+        case 'clear':
+          return 'assets/sunny.json';
+        case 'clouds':
+        case 'cloudy':
+          return 'assets/sunny_cloud.json';
+        case 'rain':
+        case 'light rain':
+        case 'shower rain':
+        case 'drizzle':
+          return 'assets/sunny_rain.json';
+        case 'thunderstorm':
+          return 'assets/thunder.json';
+        case 'snow':
+          return 'assets/snow.json';
+        default:
+          return 'assets/sunny_cloud.json';
+      }
     }
   }
 
   Color _getBackgroundColor(String? weatherMain) {
-    if (weatherMain == null) {
-      return const Color.fromARGB(255, 161, 161, 161);
-    }
-    switch (weatherMain.toLowerCase()) {
-      case 'clear':
-        return const Color.fromARGB(255, 255, 165, 0);
-      case 'clouds':
-        return const Color.fromARGB(255, 128, 128, 128);
-      case 'rain':
-      case 'light rain':
-      case 'shower rain':
-      case 'drizzle':
-        return const Color.fromARGB(255, 0, 119, 182);
-      case 'thunderstorm':
-        return const Color.fromARGB(255, 46, 139, 87);
-      case 'snow':
-        return const Color.fromARGB(255, 255, 255, 255);
-      case 'mist':
-      case 'fog':
-      case 'haze':
-      case 'dust':
-      case 'smoke':
-        return const Color.fromARGB(255, 184, 162, 217);
-      default:
-        return const Color.fromARGB(255, 161, 161, 161);
+    if (_isNightMode) {
+      return const Color.fromARGB(255, 0, 51, 102);
+    } else {
+      switch (weatherMain?.toLowerCase()) {
+        case 'clear':
+          return const Color.fromARGB(255, 255, 165, 0);
+        case 'clouds':
+        case 'cloudy':
+          return const Color.fromARGB(255, 128, 128, 128);
+        case 'rain':
+        case 'light rain':
+        case 'shower rain':
+        case 'drizzle':
+          return const Color.fromARGB(255, 0, 119, 182);
+        case 'snow':
+          return const Color.fromARGB(255, 255, 255, 255);
+        default:
+          return const Color.fromARGB(255, 161, 161, 161);
+      }
     }
   }
 
@@ -109,8 +123,14 @@ class _HomePageState extends State<HomePage> {
                   width: MediaQuery.sizeOf(context).width * 0.7,
                   child: TextField(
                     controller: _cityController,
-                    decoration: const InputDecoration(
+                    style: TextStyle(
+                      color: _isNightMode ? Colors.white : Colors.black,
+                    ),
+                    decoration: InputDecoration(
                       labelText: "Enter the city name",
+                      labelStyle: TextStyle(
+                        color: _isNightMode ? Colors.white : Colors.black,
+                      ),
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -125,8 +145,11 @@ class _HomePageState extends State<HomePage> {
                     });
                     _fetchWeather();
                   },
-                  icon: const Icon(Icons.arrow_forward,
-                      size: 30, color: Colors.black),
+                  icon: Icon(
+                    Icons.arrow_forward,
+                    size: 30,
+                    color: _isNightMode ? Colors.white : Colors.black,
+                  ),
                 ),
               ],
             ),
@@ -179,28 +202,50 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _locationHeader() {
-    return Text(_weather?.areaName ?? "",
-        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w500));
+    return Text(
+      _weather?.areaName ?? "",
+      style: TextStyle(
+        fontSize: 26,
+        fontWeight: FontWeight.w500,
+        color: _isNightMode ? Colors.white : Colors.black,
+      ),
+    );
   }
 
   Widget _dateTimeInfo() {
     DateTime now = DateTime.now();
     return Column(
       children: [
-        Text(DateFormat("h:mm a").format(now),
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w500)),
+        Text(
+          DateFormat("h:mm a").format(now),
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w500,
+            color: _isNightMode ? Colors.white : Colors.black,
+          ),
+        ),
         const SizedBox(height: 10),
         Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(DateFormat("EEEE").format(now),
-                style: const TextStyle(fontWeight: FontWeight.w600)),
-            Text("  ${DateFormat("d.M.y").format(now)}",
-                style: const TextStyle(fontWeight: FontWeight.w500)),
+            Text(
+              DateFormat("EEEE").format(now),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: _isNightMode ? Colors.white : Colors.black,
+              ),
+            ),
+            Text(
+              "  ${DateFormat("d.M.y").format(now)}",
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: _isNightMode ? Colors.white : Colors.black,
+              ),
+            ),
           ],
-        )
+        ),
       ],
     );
   }
@@ -218,15 +263,27 @@ class _HomePageState extends State<HomePage> {
           height: MediaQuery.sizeOf(context).height * 0.25,
           child: Lottie.asset(lottieAsset),
         ),
-        Text(_weather?.weatherDescription ?? "",
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500)),
+        Text(
+          _weather?.weatherDescription ?? "",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w500,
+            color: _isNightMode ? Colors.white : Colors.black,
+          ),
+        ),
       ],
     );
   }
 
   Widget _currentTemperature() {
-    return Text("${_weather?.temperature?.celsius?.round()}° C",
-        style: const TextStyle(fontSize: 75, fontWeight: FontWeight.w700));
+    return Text(
+      "${_weather?.temperature?.celsius?.round()}° C",
+      style: TextStyle(
+        fontSize: 75,
+        fontWeight: FontWeight.w700,
+        color: _isNightMode ? Colors.white : Colors.black,
+      ),
+    );
   }
 
   Widget _extraInfo() {
