@@ -18,7 +18,8 @@ WeatherApp to prosta i intuicyjna aplikacja mobilna stworzona w Flutterze, któr
   - Bieżąca temperatura  
   - Temperatura maksymalna i minimalna  
   - Prędkość wiatru  
-  - Wilgotność  
+  - Wilgotność
+  - Ciśnienie atmosferyczne
 
 ## Technologie 🛠️
 
